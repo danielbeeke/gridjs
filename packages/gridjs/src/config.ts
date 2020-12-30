@@ -22,6 +22,7 @@ import { EventEmitter } from './util/eventEmitter';
 import { GridEvents } from './events';
 import { PluginManager, PluginPosition } from './plugin';
 import Grid from './grid';
+import { ColumnFilter, ColumnFilterConfig } from "./view/plugin/column-filter/filter";
 
 // Config type used internally
 export interface Config {
@@ -90,6 +91,7 @@ interface UserConfigExtend {
   fixedHeader: boolean;
   columns: OneDArray<TColumn | string | ComponentChild>;
   search: SearchConfig | boolean;
+  columnFilter: ColumnFilterConfig | boolean;
   pagination: PaginationConfig | boolean;
   // implicit option to enable the sort plugin globally
   sort: GenericSortConfig | boolean;
@@ -205,6 +207,18 @@ export class Config {
         enabled:
           userConfig.search === true || userConfig.search instanceof Object,
         ...(userConfig.search as SearchConfig),
+      },
+    });
+
+    // Column Filter
+    config.plugin.add({
+      id: 'column-filter',
+      position: PluginPosition.Header,
+      component: ColumnFilter,
+      props: {
+        enabled:
+          userConfig.columnFilter === true || userConfig.columnFilter instanceof Object,
+        ...(userConfig.columnFilter as ColumnFilterConfig),
       },
     });
 
