@@ -9,7 +9,7 @@ import {ColumnFilterStore} from "./store";
 export interface ColumnFilterSelect {
   label: string,
   key: string,
-  options: { [key: string]: string; }
+  options: { [key: string]: string; } | Promise<{ [key: string]: string; }>
 }
 
 export interface ColumnFilterConfig {
@@ -95,12 +95,20 @@ export class ColumnFilter extends PluginBaseComponent<
   render() {
     if (!this.props.enabled) return null;
 
+    for (const select of this.props.selects) {
+      if (select.options instanceof Promise) {
+        select.options.then(options => {
+          select.options = options
+          this.forceUpdate()
+        })
+      }
+    }
+
     return (
       <div>
         {this.props.selects.map(select => {
         return (
-          <div>
-            <label>{select.label}</label>
+          <div className={'column-filter'}>
             <select value={this.store.state.filters[select.key]} onChange={(event) => this.change(select.key, event.currentTarget.value )}>
               <option>- {select.label} -</option>
               {Object.entries(select.options).map(([key, value]) => {
